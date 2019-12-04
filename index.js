@@ -21,6 +21,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const express = require('express');
 const fetch = require('node-fetch');
+const request = require('request');
 
 let Wit = null;
 let log = null;
@@ -35,6 +36,8 @@ try {
 
 // Webserver parameter
 const PORT = process.env.PORT || 8445;
+
+const API_URL = 'https://api.cryptonator.com/api/ticker/';
 
 // Wit.ai parameters
 const WIT_TOKEN = process.env.WIT_TOKEN || 'XPKCXMTPY7J5RVFYED4KCKMIXCF7TLR6'
@@ -111,7 +114,17 @@ const wit = new Wit({
 });
 
 const firstEntityValue = (entities, entity) =>  {
-    return entities[entity][0]['value'];
+    if( entity in entities) {
+        return entities[entity][0]['value'];
+    }
+    return false;
+}
+
+const firstEntityUnit = (entities, entity) =>  {
+    if( entity in entities) {
+        return entities[entity][0]['unit'];
+    }
+    return false;
 }
 
 // Starting our webserver and putting it all together
@@ -169,6 +182,25 @@ app.post('/webhook', (req, res) => {
               console.log(entities);
               if(firstEntityValue(entities, 'greetings')) {
                   return fbMessage(sender, `Hello`);
+              }
+              if(firstEntityValue(entities, 'intent') == 'convert') {
+                  let amount_of_money = firstEntityValue(entities, 'amount_of_money');
+                  let currency = firstEntityValue(entities, 'currency');
+                  let unit = firstEntityUnit(entities, 'amount_of_money');
+
+                  request.get(`${API_URL}${unit}-${currency}`, function(error, response, body) {
+                    if(error){
+                        return console.log(error);
+                    }
+                    let api_data = JSON.parse(body);
+                    let price = api_data['ticker']['price'];
+                    price = parseFloat(price);
+                    amount_of_money = parseFloat(amount_of_money);
+                    let result = amount_of_money * price;
+                    fbMessage(sender, result);
+                  });
+                  return;
+
               }
               // For now, let's reply with another automatic message
               fbMessage(sender, `We've received your message: ${text}.`);
