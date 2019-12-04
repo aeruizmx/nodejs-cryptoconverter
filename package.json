@@ -1,0 +1,22 @@
+{
+  "name": "cryptoconverter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andres87mx/nodejs-cryptoconverter.git"
+  },
+  "author": "aruiz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andres87mx/nodejs-cryptoconverter/issues"
+  },
+  "homepage": "https://github.com/andres87mx/nodejs-cryptoconverter#readme",
+  "dependencies": {
+    "node-wit": "^5.0.0"
+  }
+}
